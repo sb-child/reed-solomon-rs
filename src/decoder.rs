@@ -1,8 +1,8 @@
 use core;
-use ::gf::poly_math::*;
-use ::gf::poly::Polynom;
-use ::buffer::Buffer;
-use ::gf;
+use crate::gf::poly_math::*;
+use crate::gf::poly::Polynom;
+use crate::buffer::Buffer;
+use crate::gf;
 
 /// Decoder error
 #[derive(Debug, Copy, Clone)]
@@ -89,8 +89,8 @@ impl Decoder {
         }
 
         let fsynd = self.forney_syndromes(&synd, erase_pos, msg.len());
-        let err_loc = try!(self.find_error_locator(&fsynd, None, erase_pos.len()));
-        let mut err_pos = try!(self.find_errors(&err_loc.reverse(), msg.len()));
+        let err_loc = self.find_error_locator(&fsynd, None, erase_pos.len())?;
+        let mut err_pos = self.find_errors(&err_loc.reverse(), msg.len())?;
 
         // Append erase_pos to err_pos
         for x in erase_pos.iter() {
@@ -352,7 +352,7 @@ impl Decoder {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use ::Encoder;
+    use crate::Encoder;
 
     #[test]
     fn calc_syndromes() {
