@@ -1,6 +1,6 @@
-use core::cmp::max;
-use crate::gf::poly::Polynom;
 use crate::gf;
+use crate::gf::poly::Polynom;
+use core::cmp::max;
 
 pub trait Scale {
     fn scale(&self, x: u8) -> Polynom;
@@ -9,6 +9,7 @@ pub trait Scale {
 
 pub trait Add {
     fn add(&self, rhs: &Self) -> Polynom;
+    #[allow(dead_code)]
     fn add_assign(&mut self, rhs: &Self) -> &mut Self;
 }
 
@@ -124,7 +125,6 @@ impl Eval for [u8] {
     }
 }
 
-
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -140,11 +140,13 @@ mod tests {
     fn scale_assign() {
         let mut poly = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
         let answer = [0, 3, 6, 5, 12, 15, 10, 9, 24, 27];
-        assert_eq!(answer,
-                   *({
-                       poly.scale_assign(3);
-                       &poly
-                   }));
+        assert_eq!(
+            answer,
+            *({
+                poly.scale_assign(3);
+                &poly
+            })
+        );
     }
 
     #[test]

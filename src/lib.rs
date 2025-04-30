@@ -12,12 +12,9 @@
 //! fn main() {
 //!     let data = b"Hello World!";
 //!
-//!     // Length of error correction code
-//!     let ecc_len = 8;
-//!
 //!     // Create encoder and decoder with
-//!     let enc = Encoder::new(ecc_len);
-//!     let dec = Decoder::new(ecc_len);
+//!     let enc = Encoder::<8>::new();
+//!     let dec = Decoder::<8>::new();
 //!
 //!     // Encode data
 //!     let encoded = enc.encode(&data[..]);
@@ -46,7 +43,7 @@
 //! # Unsafe
 //! This library uses some slices indexind that is boundary checked.
 //!
-//! You can disable checks with library feature `unsafe_indexing`, 
+//! You can disable checks with library feature `unsafe_indexing`,
 //! then unsafe `Slice::get_inchecked()` would be utilized to improve speed where unchecked indexing
 //! is considered safe and LLVM cannot drop boundary checks.
 //!
@@ -159,24 +156,27 @@
 //!   </tr>
 //! </table>
 
-#![cfg_attr(feature = "dev", feature(plugin))]
-#![cfg_attr(feature = "dev", plugin(clippy))]
-#![warn(missing_docs, missing_debug_implementations,
-        trivial_casts, trivial_numeric_casts,
-        unstable_features)]
-
+// #![cfg_attr(feature = "dev", feature(plugin))]
+// #![cfg_attr(feature = "dev", plugin(clippy))]
+#![warn(
+    missing_docs,
+    missing_debug_implementations,
+    trivial_casts,
+    trivial_numeric_casts,
+    unstable_features
+)]
 #![no_std]
 
 const POLYNOMIAL_MAX_LENGTH: usize = 256;
 
 #[macro_use]
 mod macros;
-mod gf;
-mod encoder;
-mod decoder;
 mod buffer;
+mod decoder;
+mod encoder;
+mod gf;
 
-pub use encoder::Encoder;
+pub use buffer::Buffer;
 pub use decoder::Decoder;
 pub use decoder::DecoderError;
-pub use buffer::Buffer;
+pub use encoder::Encoder;
