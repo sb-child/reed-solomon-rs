@@ -25,7 +25,7 @@ impl Decoder {
     /// ```rust
     /// use reed_solomon::Decoder;
     ///
-    /// let decoder = Decoder::<8>::new();
+    /// let decoder = Decoder::new(8);
     /// ```
     pub fn new(ecc_len: usize) -> Self {
         Decoder { ecc_len }
@@ -40,8 +40,8 @@ impl Decoder {
     /// use reed_solomon::Decoder;
     ///
     /// // Create encoder and decoder
-    /// let encoder = Encoder::<4>::new();
-    /// let decoder = Decoder::<4>::new();
+    /// let encoder = Encoder::new(4);
+    /// let decoder = Decoder::new(4);
     ///
     /// // Encode message
     /// let mut encoded = encoder.encode(&[1, 2, 3, 4]);
@@ -118,8 +118,8 @@ impl Decoder {
     /// use reed_solomon::Decoder;
     ///
     /// // Create encoder and decoder
-    /// let encoder = Encoder::<4>::new();
-    /// let decoder = Decoder::<4>::new();
+    /// let encoder = Encoder::new(4);
+    /// let decoder = Decoder::new(4);
     ///
     /// // Encode message
     /// let mut encoded = encoder.encode(&[1, 2, 3, 4]);
@@ -149,8 +149,8 @@ impl Decoder {
     /// use reed_solomon::Decoder;
     ///
     /// // Create encoder and decoder
-    /// let encoder = Encoder::<4>::new();
-    /// let decoder = Decoder::<4>::new();
+    /// let encoder = Encoder::new(4);
+    /// let decoder = Decoder::new(4);
     ///
     /// // Encode message
     /// let mut encoded = encoder.encode(&[1, 2, 3, 4]);

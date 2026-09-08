@@ -14,9 +14,9 @@ impl<const ECCLEN: usize> Decoder<ECCLEN> {
     ///
     /// # Example
     /// ```rust
-    /// use reed_solomon::Decoder;
+    /// use reed_solomon::FixedDecoder;
     ///
-    /// let decoder = Decoder::<8>::new();
+    /// let decoder = FixedDecoder::<8>::new();
     /// ```
     pub fn new() -> Self {
         Decoder {}
@@ -27,12 +27,12 @@ impl<const ECCLEN: usize> Decoder<ECCLEN> {
     ///
     /// # Example
     /// ```rust
-    /// use reed_solomon::Encoder;
-    /// use reed_solomon::Decoder;
+    /// use reed_solomon::FixedEncoder;
+    /// use reed_solomon::FixedDecoder;
     ///
     /// // Create encoder and decoder
-    /// let encoder = Encoder::<4>::new();
-    /// let decoder = Decoder::<4>::new();
+    /// let encoder = FixedEncoder::<4>::new();
+    /// let decoder = FixedDecoder::<4>::new();
     ///
     /// // Encode message
     /// let mut encoded = encoder.encode(&[1, 2, 3, 4]);
@@ -102,12 +102,12 @@ impl<const ECCLEN: usize> Decoder<ECCLEN> {
     ///
     /// # Example
     /// ```rust
-    /// use reed_solomon::Encoder;
-    /// use reed_solomon::Decoder;
+    /// use reed_solomon::FixedEncoder;
+    /// use reed_solomon::FixedDecoder;
     ///
     /// // Create encoder and decoder
-    /// let encoder = Encoder::<4>::new();
-    /// let decoder = Decoder::<4>::new();
+    /// let encoder = FixedEncoder::<4>::new();
+    /// let decoder = FixedDecoder::<4>::new();
     ///
     /// // Encode message
     /// let mut encoded = encoder.encode(&[1, 2, 3, 4]);
@@ -133,12 +133,12 @@ impl<const ECCLEN: usize> Decoder<ECCLEN> {
     ///
     /// # Example
     /// ```rust
-    /// use reed_solomon::Encoder;
-    /// use reed_solomon::Decoder;
+    /// use reed_solomon::FixedEncoder;
+    /// use reed_solomon::FixedDecoder;
     ///
     /// // Create encoder and decoder
-    /// let encoder = Encoder::<4>::new();
-    /// let decoder = Decoder::<4>::new();
+    /// let encoder = FixedEncoder::<4>::new();
+    /// let decoder = FixedDecoder::<4>::new();
     ///
     /// // Encode message
     /// let mut encoded = encoder.encode(&[1, 2, 3, 4]);

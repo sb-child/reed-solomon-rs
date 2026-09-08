@@ -16,7 +16,7 @@ impl Encoder {
     /// ```rust
     /// use reed_solomon::Encoder;
     ///
-    /// let encoder = Encoder::<8>::new();
+    /// let encoder = Encoder::new(8);
     /// ```
     pub fn new(ecc_len: usize) -> Self {
         Encoder {
@@ -31,7 +31,7 @@ impl Encoder {
     /// use reed_solomon::Encoder;
     ///
     /// let data = "Hello World".as_bytes();
-    /// let encoder = Encoder::<8>::new();
+    /// let encoder = Encoder::new(8);
     ///
     /// let encoded = encoder.encode(&data);
     ///

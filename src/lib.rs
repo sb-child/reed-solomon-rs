@@ -13,8 +13,8 @@
 //!     let data = b"Hello World!";
 //!
 //!     // Create encoder and decoder with
-//!     let enc = Encoder::<8>::new();
-//!     let dec = Decoder::<8>::new();
+//!     let enc = Encoder::new(8);
+//!     let dec = Decoder::new(8);
 //!
 //!     // Encode data
 //!     let encoded = enc.encode(&data[..]);
@@ -38,6 +38,26 @@
 //!     println!("corrupted:             {:?}", corrupted);
 //!     println!("repaired:              {:?}", recv_str);
 //! }
+//! ```
+//!
+//! # Fixed (compile-time) API
+//!
+//! The same encoder/decoder is also available as const-generic types
+//! [`FixedEncoder`] and [`FixedDecoder`], where the ecc length is a type
+//! parameter rather than a runtime argument:
+//!
+//! ```rust
+//! use reed_solomon::{FixedDecoder, FixedEncoder};
+//!
+//! let enc = FixedEncoder::<8>::new();
+//! let dec = FixedDecoder::<8>::new();
+//!
+//! let encoded = enc.encode(b"Hello World!");
+//! let mut corrupted = *encoded;
+//! corrupted[0] = 0x0;
+//!
+//! let recovered = dec.correct(&mut corrupted, None).unwrap();
+//! assert_eq!(b"Hello World!", recovered.data());
 //! ```
 //!
 //! # Unsafe
@@ -174,14 +194,14 @@ mod macros;
 
 mod buffer;
 mod decoder;
+mod decoder_fixed;
 mod encoder;
 mod encoder_fixed;
-mod decoder_fixed;
 mod gf;
 
 pub use buffer::Buffer;
 pub use decoder::Decoder;
-pub use decoder_fixed::Decoder as FixedDecoder;
 pub use decoder::DecoderError;
+pub use decoder_fixed::Decoder as FixedDecoder;
 pub use encoder::Encoder;
 pub use encoder_fixed::Encoder as FixedEncoder;

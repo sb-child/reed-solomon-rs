@@ -14,9 +14,9 @@ impl<const ECCLEN: usize> Encoder<ECCLEN> {
     ///
     /// # Example
     /// ```rust
-    /// use reed_solomon::Encoder;
+    /// use reed_solomon::FixedEncoder;
     ///
-    /// let encoder = Encoder::<8>::new();
+    /// let encoder = FixedEncoder::<8>::new();
     /// ```
     pub fn new() -> Self {
         Encoder {
@@ -28,10 +28,10 @@ impl<const ECCLEN: usize> Encoder<ECCLEN> {
     ///
     /// # Example
     /// ```rust
-    /// use reed_solomon::Encoder;
+    /// use reed_solomon::FixedEncoder;
     ///
     /// let data = "Hello World".as_bytes();
-    /// let encoder = Encoder::<8>::new();
+    /// let encoder = FixedEncoder::<8>::new();
     ///
     /// let encoded = encoder.encode(&data);
     ///

@@ -59,3 +59,41 @@ fn main() {
     println!("repaired:              {:?}", recv_str);
 }
 ```
+
+## Fixed (compile-time) API
+
+Besides the runtime `Encoder`/`Decoder` above (ecc length is a `usize` argument),
+this crate also ships const-generic variants `FixedEncoder<ECCLEN>` and
+`FixedDecoder<ECCLEN>` where the ecc length is fixed at compile time:
+
+```rust
+use reed_solomon::FixedEncoder;
+use reed_solomon::FixedDecoder;
+
+fn main() {
+    let data = b"Hello World!";
+
+    // ECC length is a const generic parameter
+    let enc = FixedEncoder::<8>::new();
+    let dec = FixedDecoder::<8>::new();
+
+    let encoded = enc.encode(&data[..]);
+
+    // Simulate some transmission errors
+    let mut corrupted = *encoded;
+    for x in corrupted.iter_mut().take(4) {
+        *x = 0x0;
+    }
+
+    // Try to recover data
+    let known_erasures = [0];
+    let recovered = dec.correct(&mut corrupted, Some(&known_erasures)).unwrap();
+
+    let recv_str = std::str::from_utf8(recovered.data()).unwrap();
+    println!("repaired: {:?}", recv_str);
+}
+```
+
+Pick the runtime API when the ecc length is only known at run time; pick the
+fixed API when you want the ecc length baked into the type (e.g. for
+`no_std`/embedded code or to rule out mismatched encoder/decoder lengths).
