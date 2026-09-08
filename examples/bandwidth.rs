@@ -1,144 +1,131 @@
-// TODO
+use reed_solomon::{Decoder, Encoder};
+use serde::Serialize;
+use std::{sync::mpsc, thread, time::Duration};
 
-// extern crate reed_solomon;
-// extern crate serde;
-// extern crate serde_json;
+struct Generator {
+    pub num: u8,
+}
 
-// use std::sync::mpsc;
-// use std::thread;
-// use std::time::Duration;
+impl Generator {
+    fn new() -> Generator {
+        Generator { num: 2 }
+    }
+}
 
-// use serde::Serialize;
+impl Iterator for Generator {
+    type Item = u8;
+    fn next(&mut self) -> Option<u8> {
+        self.num = self.num.rotate_right(1);
+        Some(self.num)
+    }
+}
 
-// use reed_solomon::Decoder;
-// use reed_solomon::Encoder;
+// Returns MB/s
+fn encoder_bandwidth(data_len: usize, ecc_len: usize) -> f32 {
+    // Measure encoding bandwidth
+    let (tx, thr_rx) = mpsc::channel();
+    let (thr_tx, rx) = mpsc::channel();
 
-// struct Generator {
-//     pub num: u8,
-// }
+    thread::spawn(move || {
+        let generator = Generator::new();
+        let encoder = Encoder::new(ecc_len);
 
-// impl Generator {
-//     fn new() -> Generator {
-//         Generator { num: 2 }
-//     }
-// }
+        let buffer: Vec<u8> = generator.take(data_len).collect();
+        let mut bytes = 0;
+        while thr_rx.try_recv().is_err() {
+            encoder.encode(&buffer);
+            bytes += data_len;
+        }
 
-// impl Iterator for Generator {
-//     type Item = u8;
-//     fn next(&mut self) -> Option<u8> {
-//         self.num = self.num.rotate_right(1);
-//         Some(self.num)
-//     }
-// }
+        thr_tx.send(bytes).unwrap();
+    });
 
-// // Returns MB/s
-// fn encoder_bandwidth(data_len: usize, ecc_len: usize) -> f32 {
-//     // Measure encoding bandwidth
-//     let (tx, thr_rx) = mpsc::channel();
-//     let (thr_tx, rx) = mpsc::channel();
+    thread::sleep(Duration::from_secs(1));
 
-//     thread::spawn(move || {
-//         let generator = Generator::new();
-//         let encoder = Encoder::new(ecc_len);
+    tx.send(()).unwrap();
+    let bytes = rx.recv().unwrap();
+    let kbytes = (bytes / 1024) as f32;
+    kbytes / 1024.0
+}
 
-//         let buffer: Vec<u8> = generator.take(data_len).collect();
-//         let mut bytes = 0;
-//         while thr_rx.try_recv().is_err() {
-//             encoder.encode(&buffer);
-//             bytes += data_len;
-//         }
+// Returns MB/s
+fn decoder_bandwidth(data_len: usize, ecc_len: usize, errors: usize) -> f32 {
+    // Measure decoder bandwidth
+    let (tx, thr_rx) = mpsc::channel();
+    let (thr_tx, rx) = mpsc::channel();
 
-//         thr_tx.send(bytes).unwrap();
-//     });
+    thread::spawn(move || {
+        let generator = Generator::new();
+        let encoder = Encoder::new(ecc_len);
+        let decoder = Decoder::new(ecc_len);
 
-//     thread::sleep(Duration::from_secs(1));
+        let buffer: Vec<u8> = generator.take(data_len).collect();
+        let mut encoded = encoder.encode(&buffer);
+        for x in encoded.iter_mut().take(errors) {
+            *x = 0;
+        }
 
-//     tx.send(()).unwrap();
-//     let bytes = rx.recv().unwrap();
-//     let kbytes = (bytes / 1024) as f32;
-//     kbytes / 1024.0
-// }
+        let mut bytes = 0;
+        while thr_rx.try_recv().is_err() {
+            if decoder.is_corrupted(&encoded) {
+                decoder.correct(&mut encoded, None).unwrap();
+            }
+            bytes += data_len;
+        }
 
-// // Returns MB/s
-// fn decoder_bandwidth(data_len: usize, ecc_len: usize, errors: usize) -> f32 {
-//     // Measure decoder bandwidth
-//     let (tx, thr_rx) = mpsc::channel();
-//     let (thr_tx, rx) = mpsc::channel();
+        thr_tx.send(bytes).unwrap();
+    });
 
-//     thread::spawn(move || {
-//         let generator = Generator::new();
-//         let encoder = Encoder::new(ecc_len);
-//         let decoder = Decoder::new(ecc_len);
+    thread::sleep(Duration::from_secs(1));
 
-//         let buffer: Vec<u8> = generator.take(data_len).collect();
-//         let mut encoded = encoder.encode(&buffer);
-//         for x in encoded.iter_mut().take(errors) {
-//             *x = 0;
-//         }
+    tx.send(()).unwrap();
+    let bytes = rx.recv().unwrap();
+    let kbytes = (bytes / 1024) as f32;
+    kbytes / 1024.0
+}
 
-//         let mut bytes = 0;
-//         while thr_rx.try_recv().is_err() {
-//             if decoder.is_corrupted(&encoded) {
-//                 decoder.correct(&mut encoded, None).unwrap();
-//             }
-//             bytes += data_len;
-//         }
+#[derive(Serialize)]
+struct BenchResult {
+    data_len: usize,
+    ecc_len: usize,
+    encoder: EncoderResult,
+    decoder: Vec<DecoderResult>,
+}
 
-//         thr_tx.send(bytes).unwrap();
-//     });
+#[derive(Serialize)]
+struct EncoderResult {
+    bandwidth: f32,
+}
 
-//     thread::sleep(Duration::from_secs(1));
+#[derive(Serialize)]
+struct DecoderResult {
+    errors: usize,
+    bandwidth: f32,
+}
 
-//     tx.send(()).unwrap();
-//     let bytes = rx.recv().unwrap();
-//     let kbytes = (bytes / 1024) as f32;
-//     kbytes / 1024.0
-// }
+fn main() {
+    let results: Vec<BenchResult> = [(251, 4), (239, 16), (223, 32)]
+        .iter()
+        .map(|case| {
+            let data_len = case.0;
+            let ecc_len = case.1;
 
-// #[derive(Serialize)]
-// struct BenchResult {
-//     data_len: usize,
-//     ecc_len: usize,
-//     encoder: EncoderResult,
-//     decoder: Vec<DecoderResult>,
-// }
+            BenchResult {
+                data_len: data_len,
+                ecc_len: ecc_len,
+                encoder: EncoderResult {
+                    bandwidth: encoder_bandwidth(data_len, ecc_len),
+                },
+                decoder: (0..(ecc_len / 2) + 1)
+                    .map(|e| DecoderResult {
+                        errors: e,
+                        bandwidth: decoder_bandwidth(data_len, ecc_len, e),
+                    })
+                    .collect(),
+            }
+        })
+        .collect();
 
-// #[derive(Serialize)]
-// struct EncoderResult {
-//     bandwidth: f32,
-// }
-
-// #[derive(Serialize)]
-// struct DecoderResult {
-//     errors: usize,
-//     bandwidth: f32,
-// }
-
-// fn main() {
-//     let results: Vec<BenchResult> = [(251, 4), (239, 16), (223, 32)]
-//         .iter()
-//         .map(|case| {
-//             let data_len = case.0;
-//             let ecc_len = case.1;
-
-//             BenchResult {
-//                 data_len: data_len,
-//                 ecc_len: ecc_len,
-//                 encoder: EncoderResult {
-//                     bandwidth: encoder_bandwidth(data_len, ecc_len),
-//                 },
-//                 decoder: (0..(ecc_len / 2) + 1)
-//                     .map(|e| DecoderResult {
-//                         errors: e,
-//                         bandwidth: decoder_bandwidth(data_len, ecc_len, e),
-//                     })
-//                     .collect(),
-//             }
-//         })
-//         .collect();
-
-//     let json = serde_json::to_string(&results).unwrap();
-//     println!("{}", json);
-// }
-
-fn main() {}
+    let json = serde_json::to_string_pretty(&results).unwrap();
+    println!("{}", json);
+}

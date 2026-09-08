@@ -1,14 +1,15 @@
-extern crate reed_solomon;
-
 use reed_solomon::Decoder;
 use reed_solomon::Encoder;
 
 fn main() {
     let data = b"Hello World!";
 
+    // Length of error correction code
+    let ecc_len = 8;
+
     // Create encoder and decoder with
-    let enc = Encoder::<8>::new();
-    let dec = Decoder::<8>::new();
+    let enc = Encoder::new(ecc_len);
+    let dec = Decoder::new(ecc_len);
 
     // Encode data
     let encoded = enc.encode(&data[..]);

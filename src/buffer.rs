@@ -19,17 +19,14 @@ pub struct Buffer {
 impl Buffer {
     /// Create buffer from internal polynom
     pub fn from_polynom(poly: Polynom, data_len: usize) -> Self {
-        Buffer {
-            poly: poly,
-            data_len: data_len,
-        }
+        Buffer { poly, data_len }
     }
 
     /// Create buffer from [u8] slice
     pub fn from_slice(slice: &[u8], data_len: usize) -> Self {
         Buffer {
             poly: Polynom::from(slice),
-            data_len: data_len,
+            data_len,
         }
     }
 

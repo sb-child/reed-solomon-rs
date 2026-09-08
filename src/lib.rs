@@ -171,12 +171,17 @@ const POLYNOMIAL_MAX_LENGTH: usize = 256;
 
 #[macro_use]
 mod macros;
+
 mod buffer;
 mod decoder;
 mod encoder;
+mod encoder_fixed;
+mod decoder_fixed;
 mod gf;
 
 pub use buffer::Buffer;
 pub use decoder::Decoder;
+pub use decoder_fixed::Decoder as FixedDecoder;
 pub use decoder::DecoderError;
 pub use encoder::Encoder;
+pub use encoder_fixed::Encoder as FixedEncoder;

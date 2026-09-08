@@ -59,7 +59,6 @@ pub static LOG: [u8; LOG_SIZE] = [
 ];
 
 /// Primitive operations over Galua Fields
-
 #[allow(dead_code)]
 #[inline]
 pub fn add(x: u8, y: u8) -> u8 {

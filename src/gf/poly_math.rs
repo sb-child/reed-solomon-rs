@@ -1,5 +1,4 @@
-use crate::gf;
-use crate::gf::poly::Polynom;
+use crate::gf::{self, poly::Polynom};
 use core::cmp::max;
 
 pub trait Scale {
@@ -9,7 +8,7 @@ pub trait Scale {
 
 pub trait Add {
     fn add(&self, rhs: &Self) -> Polynom;
-    #[allow(dead_code)]
+    #[allow(unused)]
     fn add_assign(&mut self, rhs: &Self) -> &mut Self;
 }
 
